@@ -8,6 +8,8 @@ import time
 import requests
 from tokens import scraping_token
 import logging,sys
+import argparse
+import pickle
 
 # setup log
 log_format = logging.Formatter('%(asctime)s - %(module)-15s - %(levelname)-8s - %(message)s')
@@ -22,7 +24,7 @@ ch = logging.StreamHandler(sys.stdout)
 ch.setFormatter(log_format)
 log.addHandler(ch)
 
-index_cache = "index.html"
+projects_db = 'projects.pkl'
 index_url = 'https://platform.efabless.com/projects/public'
 project_base_url = 'https://platform.efabless.com'
 cached_project_dir = 'cached_pages'
@@ -47,22 +49,14 @@ async def get_async(url, session, results):
 
 # uses scraping ant web service because index page is dynamically generated and pyppeteer, playwright didn't work
 def get_index():
-    if os.path.exists(index_cache):
-        logging.info("using cached index")
-        with open(index_cache) as fh:
-            return fh.read()
-    else:
-        logging.info("making request to scraping ant for url %s, takes around 10 seconds" % index_url)
+    logging.info("making request to scraping ant for url %s" % index_url)
 
-        # Create a ScrapingAntClient instance
-        client = ScrapingAntClient(token=scraping_token)
+    # Create a ScrapingAntClient instance
+    client = ScrapingAntClient(token=scraping_token)
 
-        # Get the HTML page rendered content
-        page_content = client.general_request(index_url).content
-        with open(index_cache, 'w') as fh:
-            fh.write(page_content)
-        logging.info("done, writing to cache")
-        return page_content
+    # Get the HTML page rendered content
+    page_content = client.general_request(index_url).content
+    return page_content
 
 def parse_index(page_content):
     logging.info("parsing index for project URLs")
@@ -91,6 +85,10 @@ async def fetch_project_urls(urls):
     await session.close()
 
     logging.info("writing all pages to local cache %s" % cached_project_dir)
+
+    if not os.path.exists(cached_project_dir):
+        os.makedirs(cached_project_dir)
+
     for key in results:
         with open(os.path.join(cached_project_dir, key), 'w') as fh:
             fh.write(results[key])
@@ -111,11 +109,43 @@ def parse_project_page():
                 value = div.p.text
                 project[key] = value
 
-    logging.info("done")
-    return projects
+            minimum_project_keys = ['Last MPW Precheck', 'Last Tapeout']
+            for key in minimum_project_keys:
+                if not project.has_key(key):
+                    project[key] = None
 
-page_content = get_index()
-urls = parse_index(page_content)
-#asyncio.run(fetch_project_urls(urls))
-projects = parse_project_page()
+            projects.append(project)
+
+    logging.info("dumping project info to local cache %s" % projects_db)
+    with open(projects_db, 'ab') as fh:
+        pickle.dump(projects, fh)
+
+def list_projects(projects):
+    for project in projects:
+        logging.info("%s %s" % (project["id"], project["Owner"], project["Last Tapeout"]))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Efabless project tool")
+
+    parser.add_argument('--list', help="list basic project info", action='store_const', const=True)
+    parser.add_argument('--update-cache', help='fetch the project data', action='store_const', const=True)
+    args = parser.parse_args()
+
+    if args.update_cache:
+        page_content = get_index()
+        urls = parse_index(page_content)
+        asyncio.run(fetch_project_urls(urls))
+        projects = parse_project_page()
+
+    try:
+        with open(projects_db, 'rb') as fh:
+            # first load doesn't work??
+            projects = pickle.load(fh)
+            projects = pickle.load(fh)
+    except FileNotFoundError:
+        logging.error("project cache %s not found, use --update-cache to build it" % projects_db)
+
+    if args.list:
+        print("listing")
+        list_projects(projects)
 
