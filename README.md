@@ -28,11 +28,26 @@ If you want to use the GitHub functionality, you'll also need a git_token and gi
     git_token = "token"
     git_username = "username"
 
+This gives you 5000 requests per hour. When it runs out, you won't know unless you use --verbose
+
 # Use
 
-    ./efabless_tool.py --list   # list all projects along with tapeout and precheck status
+    ./efabless_tool.py --list       # list all projects along with tapeout and precheck status
 
-    ./efabless_tool.py --update # update the cache - requires the scraping ant token
+    ./efabless_tool.py --update     # update the cache - requires the scraping ant token
+
+    ./efabless_tool.py --get-pin    # get max number of pins in a user project's macros (needs GitHub token)
+
+## Get Pin
+
+For each project that has a successful tapeout:
+
+* fetching the def file of user_project_wrapper from the git repo
+* use def_parser to get macros
+* count occurences of PIN in each macro lef
+* return biggest count.
+
+Only works if user_project_wrapper.def and all macro.lefs are commited to the repo.
 
 # Credits
 

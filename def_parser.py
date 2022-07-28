@@ -40,7 +40,7 @@ class DefParser:
         Main method to parse the DEF file
         :return: void
         """
-        logging.info ("Start parsing DEF file...")
+        logging.debug ("Start parsing DEF file...")
         # open the file and start reading
         f = open(self.file_path, "r+")
         # the program will run until the end of file f
@@ -124,7 +124,7 @@ class DefParser:
                 self.pins = sec
             elif sec.type == "NETS_DEF":
                 self.nets = sec
-        logging.info ("Parsing DEF file done")
+        logging.debug ("Parsing DEF file done")
 
     def to_def_format(self):
         s = ""

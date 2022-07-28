@@ -11,19 +11,6 @@ import logging,sys
 import argparse
 import pickle
 
-# setup log
-log_format = logging.Formatter('%(asctime)s - %(levelname)-8s - %(message)s')
-# configure the client logging
-log = logging.getLogger('')
-# has to be set to debug as is the root logger
-log.setLevel(logging.INFO)
-
-# create console handler and set level to info
-ch = logging.StreamHandler(sys.stdout)
-# create formatter for console
-ch.setFormatter(log_format)
-log.addHandler(ch)
-
 projects_db = 'projects.pkl'
 index_url = 'https://platform.efabless.com/projects/public'
 project_base_url = 'https://platform.efabless.com'
@@ -113,6 +100,9 @@ def parse_project_page():
                 value = div.p.text.strip()
                 project[key] = value
 
+            #nice to get mpw but it's another dynamic thing
+            #mpw_header = soup.find("h1", {"class": "card-label h1 font-weight-bold pt-3 text-center"})
+
             for key in minimum_project_keys:
                 if not key in project:
                     project[key] = None
@@ -135,15 +125,18 @@ def list_projects(projects):
 
 def get_pins_in_lef(projects):
     from get_pins import get_pins
+    max_pins = 0
+    max_id = None
     for project in projects:
-        if not project["id"] == "1180":
-            continue
-        
         if not project["Last Tapeout"] == "Succeeded":
             continue
-    
-        get_pins(project)
-    
+   
+        pins = get_pins(project)
+        if pins > max_pins:
+            max_pins = pins
+            max_id = project["id"]
+        logging.info("%-5s %-80s %-5s" % (project["id"], project["Git URL"], pins))
+    logging.info("max pins was %d in project id %s" % (max_pins, max_id))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Efabless project tool")
@@ -152,12 +145,27 @@ if __name__ == '__main__':
     parser.add_argument('--show', help="show all data for a specific project")
     parser.add_argument('--get-pins', help="dump number of pins found in user project wrapper lef file", action='store_const', const=True)
     parser.add_argument('--update-cache', help='fetch the project data', action='store_const', const=True)
+    parser.add_argument('--debug', help="debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+
     args = parser.parse_args()
 
+    # setup log
+    log_format = logging.Formatter('%(asctime)s - %(levelname)-8s - %(message)s')
+    # configure the client logging
+    log = logging.getLogger('')
+    # has to be set to debug as is the root logger
+    log.setLevel(args.loglevel)
+
+    # create console handler and set level to info
+    ch = logging.StreamHandler(sys.stdout)
+    # create formatter for console
+    ch.setFormatter(log_format)
+    log.addHandler(ch)
+
     if args.update_cache:
-        page_content = get_index()
-        urls = parse_index(page_content)
-        asyncio.run(fetch_project_urls(urls))
+#        page_content = get_index()
+#        urls = parse_index(page_content)
+#        asyncio.run(fetch_project_urls(urls))
         projects = parse_project_page()
 
     try:
@@ -168,6 +176,7 @@ if __name__ == '__main__':
     # sort the projects by id
     projects.sort(key=lambda x: int(x['id']))
 
+    logging.debug("debug")
     if args.list:
         list_projects(projects)
 
