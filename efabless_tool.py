@@ -49,7 +49,7 @@ async def get_async(url, session, results):
 
 # uses scraping ant web service because index page is dynamically generated and pyppeteer, playwright didn't work
 def get_index():
-    logging.info("making request to scraping ant for url %s" % index_url)
+    logging.info("making request to scraping ant for url %s, please wait..." % index_url)
 
     # Create a ScrapingAntClient instance
     client = ScrapingAntClient(token=scraping_token)
@@ -75,8 +75,8 @@ async def fetch_project_urls(urls):
     session = aiohttp.ClientSession(connector=conn)
     results = {}
 
-    conc_req = 100
-    logging.info("starting to fetch async")
+    conc_req = 40
+    logging.info("starting to fetch async, max requests %d" % conc_req)
     now = time.time()
     await gather_with_concurrency(conc_req, *[get_async(i, session, results) for i in urls])
     time_taken = time.time() - now
@@ -104,25 +104,26 @@ def parse_project_page():
             assert 'Project Detail | Efabless' in soup.title.text
             divs = soup.find_all("div", {"class": "list-group-item py-2"})
             project['id'] = filename
+            logging.info(filename)
             for div in divs:
                 key = div.h6.text
-                value = div.p.text
+                value = div.p.text.strip()
                 project[key] = value
 
             minimum_project_keys = ['Last MPW Precheck', 'Last Tapeout']
             for key in minimum_project_keys:
-                if not project.has_key(key):
+                if not key in project:
                     project[key] = None
 
             projects.append(project)
 
     logging.info("dumping project info to local cache %s" % projects_db)
-    with open(projects_db, 'ab') as fh:
+    with open(projects_db, 'wb') as fh:
         pickle.dump(projects, fh)
 
 def list_projects(projects):
     for project in projects:
-        logging.info("%s %s" % (project["id"], project["Owner"], project["Last Tapeout"]))
+        logging.info("%s %s %s" % (project["id"], project["Owner"], project["Last Tapeout"]))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Efabless project tool")
@@ -138,10 +139,7 @@ if __name__ == '__main__':
         projects = parse_project_page()
 
     try:
-        with open(projects_db, 'rb') as fh:
-            # first load doesn't work??
-            projects = pickle.load(fh)
-            projects = pickle.load(fh)
+        projects = pickle.load(open(projects_db, 'rb'))
     except FileNotFoundError:
         logging.error("project cache %s not found, use --update-cache to build it" % projects_db)
 
