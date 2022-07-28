@@ -25,11 +25,11 @@ I have commited the pickled database [projects.pkl](projects.pkl), so you can ju
 
     ./efabless_tool.py --list   # list all projects along with tapeout and precheck status
 
-    ./efabless_tool.py --update # update the cache
+    ./efabless_tool.py --update # update the cache - requires the scraping ant token
 
 # Credits
 
-async code from https://gist.github.com/wfng92/2d2ae4385badd0f78612e447444c195f
+* async URL fetch code from https://gist.github.com/wfng92/2d2ae4385badd0f78612e447444c195f
 
 # License
 
