@@ -29,6 +29,9 @@ index_url = 'https://platform.efabless.com/projects/public'
 project_base_url = 'https://platform.efabless.com'
 cached_project_dir = 'cached_pages'
 
+# some projects don't have all keys, so set them to none
+minimum_project_keys = ['Last MPW Precheck', 'Last Tapeout', 'Git URL']
+
 # async code from https://gist.github.com/wfng92/2d2ae4385badd0f78612e447444c195f
 async def gather_with_concurrency(n, *tasks):
     semaphore = asyncio.Semaphore(n)
@@ -110,7 +113,6 @@ def parse_project_page():
                 value = div.p.text.strip()
                 project[key] = value
 
-            minimum_project_keys = ['Last MPW Precheck', 'Last Tapeout']
             for key in minimum_project_keys:
                 if not key in project:
                     project[key] = None
@@ -131,11 +133,24 @@ def list_projects(projects):
     for project in projects:
         logging.info("%-5s %-40s %-10s %-10s" % (project["id"], project["Owner"], project["Last MPW Precheck"], project["Last Tapeout"]))
 
+def get_pins_in_lef(projects):
+    from get_pins import get_pins
+    for project in projects:
+        if not project["id"] == "1180":
+            continue
+        
+        if not project["Last Tapeout"] == "Succeeded":
+            continue
+    
+        get_pins(project)
+    
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Efabless project tool")
 
     parser.add_argument('--list', help="list basic project info", action='store_const', const=True)
     parser.add_argument('--show', help="show all data for a specific project")
+    parser.add_argument('--get-pins', help="dump number of pins found in user project wrapper lef file", action='store_const', const=True)
     parser.add_argument('--update-cache', help='fetch the project data', action='store_const', const=True)
     args = parser.parse_args()
 
@@ -158,3 +173,6 @@ if __name__ == '__main__':
 
     if args.show:
         show_project(projects, args.show)
+
+    if args.get_pins:
+        get_pins_in_lef(projects)

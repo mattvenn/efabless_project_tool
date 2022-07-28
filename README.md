@@ -21,6 +21,13 @@ Then create a file called tokens.py and add a line like:
 
 I have commited the pickled database [projects.pkl](projects.pkl), so you can just use that, but it will go out of date.
 
+## GitHub token
+
+If you want to use the GitHub functionality, you'll also need a git_token and git_username added to tokens.py. Get yours from https://github.com/settings/tokens/new
+
+    git_token = "token"
+    git_username = "username"
+
 # Use
 
     ./efabless_tool.py --list   # list all projects along with tapeout and precheck status
