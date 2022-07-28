@@ -37,6 +37,7 @@ If you want to use the GitHub functionality, you'll also need a git_token and gi
 # Credits
 
 * async URL fetch code from https://gist.github.com/wfng92/2d2ae4385badd0f78612e447444c195f
+* lef/def parser from TrimCao https://github.com/trimcao/lef-parser
 
 # License
 
