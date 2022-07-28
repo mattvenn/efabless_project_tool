@@ -121,6 +121,12 @@ def parse_project_page():
     with open(projects_db, 'wb') as fh:
         pickle.dump(projects, fh)
 
+def show_project(projects, id):
+    for project in projects:
+        if project['id'] == id:
+            for key in project:
+                logging.info("%-20s = %s" % (key, project[key]))
+
 def list_projects(projects):
     for project in projects:
         logging.info("%-5s %-40s %-10s %-10s" % (project["id"], project["Owner"], project["Last MPW Precheck"], project["Last Tapeout"]))
@@ -129,6 +135,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Efabless project tool")
 
     parser.add_argument('--list', help="list basic project info", action='store_const', const=True)
+    parser.add_argument('--show', help="show all data for a specific project")
     parser.add_argument('--update-cache', help='fetch the project data', action='store_const', const=True)
     args = parser.parse_args()
 
@@ -143,7 +150,11 @@ if __name__ == '__main__':
     except FileNotFoundError:
         logging.error("project cache %s not found, use --update-cache to build it" % projects_db)
 
+    # sort the projects by id
+    projects.sort(key=lambda x: int(x['id']))
+
     if args.list:
-        print("listing")
         list_projects(projects)
 
+    if args.show:
+        show_project(projects, args.show)
