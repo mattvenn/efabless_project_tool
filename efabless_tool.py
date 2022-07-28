@@ -12,7 +12,7 @@ import argparse
 import pickle
 
 # setup log
-log_format = logging.Formatter('%(asctime)s - %(module)-15s - %(levelname)-8s - %(message)s')
+log_format = logging.Formatter('%(asctime)s - %(levelname)-8s - %(message)s')
 # configure the client logging
 log = logging.getLogger('')
 # has to be set to debug as is the root logger
@@ -123,7 +123,7 @@ def parse_project_page():
 
 def list_projects(projects):
     for project in projects:
-        logging.info("%s %s %s" % (project["id"], project["Owner"], project["Last Tapeout"]))
+        logging.info("%-5s %-40s %-10s %-10s" % (project["id"], project["Owner"], project["Last MPW Precheck"], project["Last Tapeout"]))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Efabless project tool")
