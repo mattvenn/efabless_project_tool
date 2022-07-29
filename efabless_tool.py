@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from bs4 import BeautifulSoup
+from selenium import webdriver
 from scrapingant_client import ScrapingAntClient
 import os, shutil, pickle, time, sys, logging, argparse
 import asyncio
@@ -13,7 +14,7 @@ project_base_url = 'https://platform.efabless.com'
 cached_project_dir = 'cached_pages'
 
 # some projects don't have all keys, so set them to none
-minimum_project_keys = ['Last MPW Precheck', 'Last Tapeout', 'Git URL']
+minimum_project_keys = ['Last MPW Precheck', 'Last Tapeout', 'Git URL', 'MPW']
 
 # async code from https://gist.github.com/wfng92/2d2ae4385badd0f78612e447444c195f
 async def gather_with_concurrency(n, *tasks):
@@ -34,15 +35,25 @@ async def get_async(url, session, results):
         results[i] = obj
 
 # uses scraping ant web service because index page is dynamically generated and pyppeteer, playwright didn't work
-def get_index():
-    logging.info("making request to scraping ant for url %s, please wait..." % index_url)
+def get_urls_from_index():
+    logging.info("making request with selenium controlled chrome for url %s" % index_url)
 
-    # Create a ScrapingAntClient instance
-    client = ScrapingAntClient(token=scraping_token)
 
-    # Get the HTML page rendered content
-    page_content = client.general_request(index_url).content
-    return page_content
+    driver = webdriver.Chrome()
+    driver.get(index_url)
+
+    for i in range(10):
+        page_content = driver.page_source
+        urls = parse_index(page_content)
+        if len(urls) != 0:
+            break
+        logging.info("waiting for page to load")
+        time.sleep(1.0)
+    else: 
+        logging.error("couldn't fetch URLs")
+        exit(1)
+
+    return urls
 
 def parse_index(page_content):
     logging.info("parsing index for project URLs")
@@ -102,8 +113,9 @@ def parse_project_page():
                 value = div.p.text.strip()
                 project[key] = value
 
-            #nice to get mpw but it's another dynamic thing
-            #mpw_header = soup.find("h1", {"class": "card-label h1 font-weight-bold pt-3 text-center"})
+            mpw_header = soup.find("h1", {"class": "card-label h1 font-weight-bold pt-3 text-center"})
+            if mpw_header is not None:
+                project['MPW'] = mpw_header.text.strip()
 
             for key in minimum_project_keys:
                 if not key in project:
@@ -123,7 +135,7 @@ def show_project(projects, id):
 
 def list_projects(projects):
     for project in projects:
-        logging.info("%-5s %-40s %-10s %-10s" % (project["id"], project["Owner"], project["Last MPW Precheck"], project["Last Tapeout"]))
+        logging.info("%-5s %-5s %-40s %-10s %-10s" % (project["id"], project["MPW"], project["Owner"], project["Last MPW Precheck"], project["Last Tapeout"]))
 
 def get_pins_in_lef(projects):
     from get_pins import get_pins
@@ -166,12 +178,7 @@ if __name__ == '__main__':
     log.addHandler(ch)
 
     if args.update_cache:
-        page_content = get_index()
-        with open('index.html', 'w') as fh:
-            fh.write(page_content)
-    #    with open('index.html') as fh:
-    #        page_content = fh.read()
-        urls = parse_index(page_content)
+        urls = get_urls_from_index()
         asyncio.run(fetch_project_urls(urls, args.limit_update))
         projects = parse_project_page()
 

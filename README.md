@@ -8,16 +8,12 @@ Efabless don't yet have an API, so I've written this as a quick hack to get bulk
 
     pip3 install -r requirements.txt
 
-## Get Scraping Ant token
+## Install Selenium Driver
 
 Efabless index page is dynamically generated and can't be fetched with a simple get.
-I tried pyppeteer and playwright, then used Scraping Ant.
+I tried pyppeteer and playwright, Scraping Ant and finally Selenium.
 
-You will need to get your own token from https://app.scrapingant.com/login
-
-Then create a file called tokens.py and add a line like:
-
-    scraping_token = "your token"
+You will need to install the driver that works with the browser you have installed, see these instructions: https://selenium-python.readthedocs.io/installation.html.
 
 I have commited the pickled database [projects.pkl](projects.pkl), so you can just use that, but it will go out of date.
 
