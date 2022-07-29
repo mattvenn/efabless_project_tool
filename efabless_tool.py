@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 from bs4 import BeautifulSoup
 from selenium import webdriver
-import os, shutil, pickle, time, sys, logging, argparse
+import os, shutil, pickle, time, sys, logging, argparse, re
 import asyncio
 import aiohttp
 import requests
+
+# pipe handling
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE,SIG_DFL) 
 
 projects_db = 'projects.pkl'
 index_url = 'https://platform.efabless.com/projects/public'
@@ -163,7 +167,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # setup log
-    log_format = logging.Formatter('%(asctime)s - %(levelname)-8s - %(message)s')
+    log_format = logging.Formatter('%(message)s')
     # configure the client logging
     log = logging.getLogger('')
     # has to be set to debug as is the root logger
@@ -188,7 +192,18 @@ if __name__ == '__main__':
     # sort the projects by id
     projects.sort(key=lambda x: int(x['id']))
 
-    logging.debug("debug")
+    # handle ID selection by stdin
+    if not sys.stdin.isatty():
+        pre_filtered_projects = projects
+        projects = []
+        lines = sys.stdin.readlines()
+        for line in lines:
+            m = re.search('^(\d+)\s', line)
+            if m is not None:
+                for project in pre_filtered_projects:
+                    if project['id'] == m.group(1):
+                        projects.append(project)
+
     if args.list:
         list_projects(projects)
 
