@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 from bs4 import BeautifulSoup
 from scrapingant_client import ScrapingAntClient
-import os
+import os, shutil, pickle, time, sys, logging, argparse
 import asyncio
 import aiohttp
-import time
 import requests
 from tokens import scraping_token
-import logging,sys
-import argparse
-import pickle
 
 projects_db = 'projects.pkl'
 index_url = 'https://platform.efabless.com/projects/public'
@@ -60,10 +56,14 @@ def parse_index(page_content):
     logging.info("found %d urls" % len(urls))
     return urls
 
-async def fetch_project_urls(urls):
+async def fetch_project_urls(urls, limit):
     conn = aiohttp.TCPConnector(limit=None, ttl_dns_cache=300)
     session = aiohttp.ClientSession(connector=conn)
     results = {}
+    
+    # allow limiting for testing
+    if limit != 0:
+        urls = urls[0:limit]
 
     conc_req = 40
     logging.info("starting to fetch async, max requests %d" % conc_req)
@@ -76,8 +76,10 @@ async def fetch_project_urls(urls):
 
     logging.info("writing all pages to local cache %s" % cached_project_dir)
 
-    if not os.path.exists(cached_project_dir):
-        os.makedirs(cached_project_dir)
+    if os.path.exists(cached_project_dir):
+        shutil.rmtree(cached_project_dir)
+
+    os.makedirs(cached_project_dir)
 
     for key in results:
         with open(os.path.join(cached_project_dir, key), 'w') as fh:
@@ -145,6 +147,7 @@ if __name__ == '__main__':
     parser.add_argument('--show', help="show all data for a specific project")
     parser.add_argument('--get-pins', help="dump number of pins found in user project wrapper lef file", action='store_const', const=True)
     parser.add_argument('--update-cache', help='fetch the project data', action='store_const', const=True)
+    parser.add_argument('--limit-update', help='just fetch the given number of projects', type=int, default=0)
     parser.add_argument('--debug', help="debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
 
     args = parser.parse_args()
@@ -163,9 +166,13 @@ if __name__ == '__main__':
     log.addHandler(ch)
 
     if args.update_cache:
-#        page_content = get_index()
-#        urls = parse_index(page_content)
-#        asyncio.run(fetch_project_urls(urls))
+        page_content = get_index()
+        with open('index.html', 'w') as fh:
+            fh.write(page_content)
+    #    with open('index.html') as fh:
+    #        page_content = fh.read()
+        urls = parse_index(page_content)
+        asyncio.run(fetch_project_urls(urls, args.limit_update))
         projects = parse_project_page()
 
     try:
