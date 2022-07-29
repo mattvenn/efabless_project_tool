@@ -2,6 +2,10 @@
 
 Efabless don't yet have an API, so I've written this as a quick hack to get bulk project data from the Google sponsored MPW projects.
 
+Also, while there are around 600 public projects (As of July 2022), only 240ish have been selected to be made. The selected status isn't
+a secret but it's also not easily available, so I have put a list of (most of) the ids in the [selected](selected) file, which is merged
+into the data from the website. I'll manually update this after every shuttle selection.
+
 # To set up
 
 ## Install Python dependencies
@@ -36,7 +40,11 @@ This gives you 5000 requests per hour. When it runs out, you won't know unless y
 
     ./efabless_too.py --list --fields mpw,process   # show only mpw and process for all projects
 
-Also accepts project IDs on the standard input, so you can build pipelines like
+Also accepts project IDs on the standard input, so you can build pipelines like:
+
+    ./efabless_tool.py --list | wc -l
+
+To find how many public projects there are. Or:
 
     ./efabless_tool.py --list --fields owner,tapeout,process | grep Matt | grep Succeeded | grep 130B
 
