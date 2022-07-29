@@ -225,17 +225,13 @@ if __name__ == '__main__':
     ch.setFormatter(log_format)
     log.addHandler(ch)
 
-    if args.update_cache:
-        urls = get_urls_from_index()
-        asyncio.run(fetch_project_urls(urls, args.limit_update))
-        projects = parse_project_page()
-
+    # load projects from cache
     try:
         projects = pickle.load(open(projects_db, 'rb'))
     except FileNotFoundError:
         logging.error("project cache %s not found, use --update-cache to build it" % projects_db)
 
-    # sort the projects by id
+    # sort the projects by ID
     projects.sort(key=lambda x: int(x['id']))
 
     # handle ID selection by stdin
@@ -256,11 +252,20 @@ if __name__ == '__main__':
             if project['id'] == str(args.id):
                 projects = [project]
 
+    # deal with arguments
     if args.list:
         list_projects(projects, args.fields)
 
-    if args.show:
+    elif args.show:
         show_project(projects)
 
-    if args.get_pins:
+    elif args.get_pins:
         get_pins_in_lef(projects)
+
+    elif args.update_cache:
+        urls = get_urls_from_index()
+        asyncio.run(fetch_project_urls(urls, args.limit_update))
+        projects = parse_project_page()
+
+    else:
+        parser.print_help()
