@@ -53,7 +53,7 @@ def get_pins(project):
     d.parse()
     fp.close()
     macros = []
-    
+
     # now we have macros
     try:
         for macro in d.components.comps:
