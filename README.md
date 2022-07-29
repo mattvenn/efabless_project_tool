@@ -6,6 +6,10 @@ Also, while there are around 600 public projects (As of July 2022), only 240ish 
 a secret but it's also not easily available, so I have put a list of (most of) the ids in the [selected](selected) file, which is merged
 into the data from the website. I'll manually update this after every shuttle selection.
 
+# Watch the demo!
+
+https://youtu.be/laAQLVO7aQo
+
 # To set up
 
 ## Install Python dependencies
