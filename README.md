@@ -54,11 +54,11 @@ Which would show only successful tapeouts by me on Sky130B process.
 
 ## Get Pin
 
-For each project that has a successful tapeout:
+For each project:
 
-* fetching the def file of user_project_wrapper from the git repo
-* use def_parser to get macros
-* count occurences of PIN in each macro lef
+* fetch the def file of user_project_wrapper from the git repo,
+* use [def_parser](/blob/sel_set/def/user_project_wrapper.def) to get macros,
+* count occurences of PIN in each macro lef,
 * return biggest count.
 
 Only works if user_project_wrapper.def and all macro.lefs are commited to the repo.
