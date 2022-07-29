@@ -10,30 +10,6 @@ into the data from the website. I'll manually update this after every shuttle se
 
 https://youtu.be/laAQLVO7aQo
 
-# To set up
-
-## Install Python dependencies
-
-    pip3 install -r requirements.txt
-
-## Install Selenium Driver
-
-Efabless index page is dynamically generated and can't be fetched with a simple get.
-I tried pyppeteer and playwright, Scraping Ant and finally Selenium.
-
-You will need to install the driver that works with the browser you have installed, see these instructions: https://selenium-python.readthedocs.io/installation.html.
-
-I have commited the pickled database [projects.pkl](projects.pkl), so you can just use that, but it will go out of date.
-
-## GitHub token
-
-If you want to use the GitHub functionality (currently only used for the get-pin option), you'll also need a git_token and git_username added to tokens.py. Get yours from https://github.com/settings/tokens/new
-
-    git_token = "token"
-    git_username = "username"
-
-This gives you 5000 requests per hour. When it runs out, you won't know unless you use --verbose
-
 # Use
 
 List all projects along with tapeout and precheck status:
@@ -81,6 +57,30 @@ For each project:
 * return biggest count.
 
 Only works if user_project_wrapper.def and all macro.lefs are commited to the repo.
+
+# To set up
+
+## Install Python dependencies
+
+    pip3 install -r requirements.txt
+
+## Install Selenium Driver
+
+Efabless index page is dynamically generated and can't be fetched with a simple get.
+I tried pyppeteer and playwright, Scraping Ant and finally Selenium.
+
+You will need to install the driver that works with the browser you have installed, see these instructions: https://selenium-python.readthedocs.io/installation.html.
+
+I have commited the pickled database [projects.pkl](projects.pkl), so you can just use that, but it will go out of date.
+
+## GitHub token
+
+If you want to use the GitHub functionality (currently only used for the get-pin option), you'll also need a git_token and git_username added to tokens.py. Get yours from https://github.com/settings/tokens/new
+
+    git_token = "token"
+    git_username = "username"
+
+This gives you 5000 requests per hour.
 
 # Credits
 
