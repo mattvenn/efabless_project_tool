@@ -28,11 +28,19 @@ This gives you 5000 requests per hour. When it runs out, you won't know unless y
 
 # Use
 
-    ./efabless_tool.py --list       # list all projects along with tapeout and precheck status
+    ./efabless_tool.py --list                       # list all projects along with tapeout and precheck status
 
-    ./efabless_tool.py --update     # update the cache - requires the scraping ant token
+    ./efabless_tool.py --update                     # update the cache - requires the scraping ant token
 
-    ./efabless_tool.py --get-pin    # get max number of pins in a user project's macros (needs GitHub token)
+    ./efabless_tool.py --get-pin                    # get max number of pins in a user project's macros (needs GitHub token)
+
+    ./efabless_too.py --list --fields mpw,process   # show only mpw and process for all projects
+
+Also accepts project IDs on the standard input, so you can build pipelines like
+
+    ./efabless_tool.py --list --fields owner,tapeout,process | grep Matt | grep Succeeded | grep 130B
+
+Which would show only successful tapeouts by me on Sky130B process.
 
 ## Get Pin
 

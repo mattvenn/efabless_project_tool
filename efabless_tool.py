@@ -154,7 +154,7 @@ def show_project(projects, id):
     for project in projects:
         if project['id'] == id:
             for key in project:
-                logging.info("%-20s = %s" % (key, project[key]))
+                logging.info("{:20}{}".format(key, project[key]))
 
 def list_projects(projects, fields):
     for project in projects:
