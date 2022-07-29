@@ -38,7 +38,9 @@ This gives you 5000 requests per hour. When it runs out, you won't know unless y
 
     ./efabless_tool.py --get-pin                    # get max number of pins in a user project's macros (needs GitHub token)
 
-    ./efabless_too.py --list --fields mpw,process   # show only mpw and process for all projects
+    ./efabless_tool.py --list --fields mpw,process  # show only mpw and process for all projects
+
+    ./efabless_tool.py --id 1000 --show             # show all fields for project 1000
 
 Also accepts project IDs on the standard input, so you can build pipelines like:
 
