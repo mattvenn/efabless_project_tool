@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from scrapingant_client import ScrapingAntClient
 import os, shutil, pickle, time, sys, logging, argparse
 import asyncio
 import aiohttp
 import requests
-from tokens import scraping_token
 
 projects_db = 'projects.pkl'
 index_url = 'https://platform.efabless.com/projects/public'
