@@ -4,11 +4,10 @@ from selenium import webdriver
 import os, shutil, pickle, time, sys, logging, argparse, re
 import asyncio
 import aiohttp
-import requests
 
 # pipe handling
 from signal import signal, SIGPIPE, SIG_DFL
-signal(SIGPIPE,SIG_DFL) 
+signal(SIGPIPE, SIG_DFL)
 
 projects_db = 'projects.pkl'
 index_url = 'https://platform.efabless.com/projects/public'
@@ -16,7 +15,7 @@ project_base_url = 'https://platform.efabless.com'
 cached_project_dir = 'cached_pages'
 
 # some projects don't have all keys, so set them to none
-key_map = { 
+key_map = {
     'Last MPW Precheck' : 'precheck',
     'Last Tapeout'      : 'tapeout',
     'Git URL'           : 'giturl',
@@ -39,7 +38,9 @@ format_map = {
     'selected'  : '{:4.4}',
     }
 
-# async code from https://gist.github.com/wfng92/2d2ae4385badd0f78612e447444c195f
+
+# async code from
+# https://gist.github.com/wfng92/2d2ae4385badd0f78612e447444c195f
 async def gather_with_concurrency(n, *tasks):
     semaphore = asyncio.Semaphore(n)
 
@@ -57,10 +58,10 @@ async def get_async(url, session, results):
         obj = await response.text()
         results[i] = obj
 
-# uses scraping ant web service because index page is dynamically generated and pyppeteer, playwright didn't work
+
+# uses selenium webdriver with Chrome because index is dynamic
 def get_urls_from_index():
     logging.info("making request with selenium controlled chrome for url %s" % index_url)
-
 
     driver = webdriver.Chrome()
     driver.get(index_url)
@@ -72,11 +73,12 @@ def get_urls_from_index():
             break
         logging.info("waiting for page to load")
         time.sleep(1.0)
-    else: 
+    else:
         logging.error("couldn't fetch URLs")
         exit(1)
 
     return urls
+
 
 def parse_index(page_content):
     logging.info("parsing index for project URLs")
@@ -90,11 +92,12 @@ def parse_index(page_content):
     logging.info("found %d urls" % len(urls))
     return urls
 
+
 async def fetch_project_urls(urls, limit):
     conn = aiohttp.TCPConnector(limit=None, ttl_dns_cache=300)
     session = aiohttp.ClientSession(connector=conn)
     results = {}
-    
+
     # allow limiting for testing
     if limit != 0:
         urls = urls[0:limit]
@@ -118,6 +121,7 @@ async def fetch_project_urls(urls, limit):
     for key in results:
         with open(os.path.join(cached_project_dir, key), 'w') as fh:
             fh.write(results[key])
+
 
 def parse_project_page():
     logging.info("parsing project pages")
@@ -147,13 +151,13 @@ def parse_project_page():
             mpw_header = soup.find("h1", {"class": "card-label h1 font-weight-bold pt-3 text-center"})
             if mpw_header is not None:
                 project['mpw'] = mpw_header.text.strip()
-            
+
             if project['id'] in selected:
                 project['selected'] = 'yes'
 
             # fill in any blanks
             for key in key_map.values():
-                if not key in project:
+                if key not in project:
                     project[key] = 'n/a'
 
             projects.append(project)
@@ -162,11 +166,13 @@ def parse_project_page():
     with open(projects_db, 'wb') as fh:
         pickle.dump(projects, fh)
 
+
 def show_project(projects, id):
     for project in projects:
         if project['id'] == id:
             for key in project:
                 logging.info("{:20}{}".format(key, project[key]))
+
 
 def list_projects(projects, fields):
     # always include id as first field
@@ -179,6 +185,7 @@ def list_projects(projects, fields):
                 log += " "
         logging.info(log)
 
+
 def get_pins_in_lef(projects):
     from get_pins import get_pins
     max_pins = 0
@@ -190,6 +197,7 @@ def get_pins_in_lef(projects):
             max_id = project["id"]
         logging.info("%-5s %-80s %-5s" % (project["id"], project["giturl"], pins))
     logging.info("max pins was %d in project id %s" % (max_pins, max_id))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Efabless project tool")
@@ -218,8 +226,8 @@ if __name__ == '__main__':
     log.addHandler(ch)
 
     if args.update_cache:
-        #urls = get_urls_from_index()
-        #asyncio.run(fetch_project_urls(urls, args.limit_update))
+        urls = get_urls_from_index()
+        asyncio.run(fetch_project_urls(urls, args.limit_update))
         projects = parse_project_page()
 
     try:
@@ -236,7 +244,7 @@ if __name__ == '__main__':
         projects = []
         lines = sys.stdin.readlines()
         for line in lines:
-            m = re.search('^(\d+)\s', line)
+            m = re.search(r'^(\d+)\s', line)
             if m is not None:
                 for project in pre_filtered_projects:
                     if project['id'] == m.group(1):
