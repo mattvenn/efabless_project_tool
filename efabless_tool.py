@@ -23,7 +23,8 @@ key_map = {
     'MPW'               : 'mpw',
     'Owner'             : 'owner',
     'Process'           : 'process',
-    'Summary'           : 'summary'
+    'Summary'           : 'summary',
+    'Selected'          : 'selected'
     }
 
 format_map = {
@@ -35,6 +36,7 @@ format_map = {
     'owner'     : '{:20.20}',
     'process'   : '{:8.8}',
     'summary'   : '{:40.40}',
+    'selected'  : '{:4.4}',
     }
 
 # async code from https://gist.github.com/wfng92/2d2ae4385badd0f78612e447444c195f
@@ -120,6 +122,13 @@ async def fetch_project_urls(urls, limit):
 def parse_project_page():
     logging.info("parsing project pages")
     projects = []
+    selected = []
+
+    # get list of selected projects
+    with open('selected') as fh:
+        for id in fh.readlines():
+            selected.append(id.strip())
+
     for filename in os.listdir(cached_project_dir):
         with open(os.path.join(cached_project_dir, filename)) as fh:
             project = {}
@@ -138,6 +147,9 @@ def parse_project_page():
             mpw_header = soup.find("h1", {"class": "card-label h1 font-weight-bold pt-3 text-center"})
             if mpw_header is not None:
                 project['mpw'] = mpw_header.text.strip()
+            
+            if project['id'] in selected:
+                project['selected'] = 'yes'
 
             # fill in any blanks
             for key in key_map.values():
@@ -157,17 +169,14 @@ def show_project(projects, id):
                 logging.info("{:20}{}".format(key, project[key]))
 
 def list_projects(projects, fields):
+    # always include id as first field
+    fields = 'id,' + fields
     for project in projects:
         log = ''
-        # always include id
-        if 'id' not in fields:
-            fields = 'id,' + fields
-
         for field in fields.split(','):
             if field in project:
                 log += format_map[field].format(project[field])
                 log += " "
-
         logging.info(log)
 
 def get_pins_in_lef(projects):
@@ -179,14 +188,14 @@ def get_pins_in_lef(projects):
         if pins > max_pins:
             max_pins = pins
             max_id = project["id"]
-        logging.info("%-5s %-80s %-5s" % (project["id"], project["Git URL"], pins))
+        logging.info("%-5s %-80s %-5s" % (project["id"], project["giturl"], pins))
     logging.info("max pins was %d in project id %s" % (max_pins, max_id))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Efabless project tool")
 
     parser.add_argument('--list', help="list basic project info", action='store_const', const=True)
-    parser.add_argument('--fields', help="comma separated list of fields to show. To see all available fields, use the --show option", default='id,mpw,owner,precheck,tapeout')
+    parser.add_argument('--fields', help="comma separated list of fields to show. To see all available fields, use the --show option", default='mpw,owner,precheck,tapeout')
     parser.add_argument('--show', help="show all data for a specific project")
     parser.add_argument('--get-pins', help="dump number of pins found in user project wrapper lef file", action='store_const', const=True)
     parser.add_argument('--update-cache', help='fetch the project data', action='store_const', const=True)
@@ -209,8 +218,8 @@ if __name__ == '__main__':
     log.addHandler(ch)
 
     if args.update_cache:
-        urls = get_urls_from_index()
-        asyncio.run(fetch_project_urls(urls, args.limit_update))
+        #urls = get_urls_from_index()
+        #asyncio.run(fetch_project_urls(urls, args.limit_update))
         projects = parse_project_page()
 
     try:

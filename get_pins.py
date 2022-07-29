@@ -33,7 +33,7 @@ def fetch_file_from_git(user_name, repo, path):
 
 def get_pins(project):
     # get the basics
-    git_url = project['Git URL']
+    git_url = project['giturl']
     res = urlparse(git_url)
     try:
         _, user_name, repo = res.path.split('/')
