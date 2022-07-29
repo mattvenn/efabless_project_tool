@@ -167,11 +167,10 @@ def parse_project_page():
         pickle.dump(projects, fh)
 
 
-def show_project(projects, id):
+def show_project(projects):
     for project in projects:
-        if project['id'] == id:
-            for key in project:
-                logging.info("{:20}{}".format(key, project[key]))
+        for key in project:
+            logging.info("{:20}{}".format(key, project[key]))
 
 
 def list_projects(projects, fields):
@@ -203,8 +202,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Efabless project tool")
 
     parser.add_argument('--list', help="list basic project info", action='store_const', const=True)
-    parser.add_argument('--fields', help="comma separated list of fields to show. To see all available fields, use the --show option", default='mpw,owner,precheck,tapeout')
-    parser.add_argument('--show', help="show all data for a specific project")
+    parser.add_argument('--fields', help="comma separated list of fields to show. To see all available fields, use the --show option", default='mpw,owner,tapeout,selected')
+    parser.add_argument('--show', help="show all data for given projects", action='store_const', const=True)
+    parser.add_argument('--id', help="select a project by id", type=int)
     parser.add_argument('--get-pins', help="dump number of pins found in user project wrapper lef file", action='store_const', const=True)
     parser.add_argument('--update-cache', help='fetch the project data', action='store_const', const=True)
     parser.add_argument('--limit-update', help='just fetch the given number of projects', type=int, default=0)
@@ -250,11 +250,17 @@ if __name__ == '__main__':
                     if project['id'] == m.group(1):
                         projects.append(project)
 
+    # handle ID by argument
+    if args.id:
+        for project in projects:
+            if project['id'] == str(args.id):
+                projects = [project]
+
     if args.list:
         list_projects(projects, args.fields)
 
     if args.show:
-        show_project(projects, args.show)
+        show_project(projects)
 
     if args.get_pins:
         get_pins_in_lef(projects)
