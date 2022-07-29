@@ -27,7 +27,7 @@ I have commited the pickled database [projects.pkl](projects.pkl), so you can ju
 
 ## GitHub token
 
-If you want to use the GitHub functionality, you'll also need a git_token and git_username added to tokens.py. Get yours from https://github.com/settings/tokens/new
+If you want to use the GitHub functionality (currently only used for the get-pin option), you'll also need a git_token and git_username added to tokens.py. Get yours from https://github.com/settings/tokens/new
 
     git_token = "token"
     git_username = "username"
@@ -36,25 +36,40 @@ This gives you 5000 requests per hour. When it runs out, you won't know unless y
 
 # Use
 
-    ./efabless_tool.py --list                       # list all projects along with tapeout and precheck status
+List all projects along with tapeout and precheck status:
 
-    ./efabless_tool.py --update                     # update the cache - requires the scraping ant token
+    ./efabless_tool.py --list                       
 
-    ./efabless_tool.py --get-pin                    # get max number of pins in a user project's macros (needs GitHub token)
+Show only mpw and process for all projects:
 
-    ./efabless_tool.py --list --fields mpw,process  # show only mpw and process for all projects
+    ./efabless_tool.py --list --fields mpw,process  
 
-    ./efabless_tool.py --id 1000 --show             # show all fields for project 1000
+Show all fields for project 1000:
 
-Also accepts project IDs on the standard input, so you can build pipelines like:
+    ./efabless_tool.py --id 1000 --show
+
+Update the cache - requires the selenium setup, takes about 3 minutes.
+
+    ./efabless_tool.py --update
+Get max number of pins in a user project's macros (needs GitHub token)
+
+    ./efabless_tool.py --get-pin                    
+
+---
+
+Also accepts project IDs on the standard input, so you can build pipelines to answer questions like:
+
+How many public projects are there?
 
     ./efabless_tool.py --list | wc -l
 
-To find how many public projects there are. Or:
+How many successful tapeouts by me on Sky130B process?
 
     ./efabless_tool.py --list --fields owner,tapeout,process | grep Matt | grep Succeeded | grep 130B
 
-Which would show only successful tapeouts by me on Sky130B process.
+How many reram projects were selected to be manufactured?
+
+    ./efabless_tool.py --list --field summary,selected | grep -i reram | grep yes
 
 ## Get Pin
 
