@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-from bs4 import BeautifulSoup
-from selenium import webdriver
 import os, shutil, pickle, time, sys, logging, argparse, re
-import asyncio
-import aiohttp
 
 # pipe handling
 from signal import signal, SIGPIPE, SIG_DFL
@@ -263,6 +259,10 @@ if __name__ == '__main__':
         get_pins_in_lef(projects)
 
     elif args.update_cache:
+        from bs4 import BeautifulSoup
+        from selenium import webdriver
+        import asyncio
+        import aiohttp
         urls = get_urls_from_index()
         asyncio.run(fetch_project_urls(urls, args.limit_update))
         projects = parse_project_page()
