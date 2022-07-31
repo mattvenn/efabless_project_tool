@@ -10,7 +10,7 @@ into the data from the website. I'll manually update this after every shuttle se
 
 https://youtu.be/laAQLVO7aQo
 
-# Use
+# Example use
 
 List all projects along with tapeout and precheck status:
 
@@ -30,10 +30,6 @@ Update the cache - requires the selenium setup, takes about 3 minutes.
 Get max number of pins in a user project's macros (needs GitHub token)
 
     ./efabless_tool.py --get-pin                    
-
----
-
-Also accepts project IDs on the standard input, so you can build pipelines to answer questions like:
 
 How many public projects are there?
 
@@ -60,6 +56,9 @@ Only works if user_project_wrapper.def and all macro.lefs are commited to the re
 
 # To set up
 
+The tool comes with a database of projects, that will go out of date. If you want to refresh the cache, you
+will need to install the dependencies.
+
 ## Install Python dependencies
 
     pip3 install -r requirements.txt
@@ -70,8 +69,6 @@ Efabless index page is dynamically generated and can't be fetched with a simple 
 I tried pyppeteer and playwright, Scraping Ant and finally Selenium.
 
 You will need to install the driver that works with the browser you have installed, see these instructions: https://selenium-python.readthedocs.io/installation.html.
-
-I have commited the pickled database [projects.pkl](projects.pkl), so you can just use that, but it will go out of date.
 
 ## GitHub token
 
