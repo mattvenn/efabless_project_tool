@@ -30,7 +30,7 @@ format_map = {
     'mpw'       : '{:6.6}',
     'owner'     : '{:20.20}',
     'process'   : '{:8.8}',
-    'summary'   : '{:40.40}',
+    'summary'   : '{:80.80}',
     'selected'  : '{:4.4}',
     }
 
@@ -207,6 +207,9 @@ if __name__ == '__main__':
     parser.add_argument('--debug', help="debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
 
     args = parser.parse_args()
+
+    # change directory to the script's path
+    os.chdir((os.path.dirname(os.path.realpath(__file__))))
 
     # setup log
     log_format = logging.Formatter('%(message)s')
