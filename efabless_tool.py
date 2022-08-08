@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from ast import arg
 import os, shutil, pickle, time, sys, logging, argparse, re
 
 # pipe handling
@@ -185,12 +184,15 @@ def list_projects(projects, fields):
 def list_by_ip(projects,ip):
     ip=re.sub("-","",ip)
     for project in projects:
+        log = ''
         if re.search(ip,project["summary"],re.IGNORECASE):
-            if project["giturl"] != "n/a":
-                logging.info("%-5s %-35s %-80s" % (project["id"], project["owner"], project["giturl"]))
-            else:
-                logging.info("%-5s %-35s [github link not found] https://platform.efabless.com/projects/%s" % (project["id"], project["owner"],project["id"]))
-
+            for field in ["id","owner","giturl"]:
+                log += format_map[field].format(project[field])
+                if re.search("n/a",log):
+                    log=re.sub("n/a","[github link not found] https://platform.efabless.com/projects/{0}".format(project["id"]),log)
+                log += " "
+            logging.info(log)
+                            
 
 def get_pins_in_lef(projects):
     from get_pins import get_pins
