@@ -181,6 +181,19 @@ def list_projects(projects, fields):
         logging.info(log)
 
 
+def list_by_ip(projects,ip):
+    ip=re.sub("-","",ip)
+    for project in projects:
+        log = ''
+        if re.search(ip,project["summary"],re.IGNORECASE):
+            for field in ["id","owner","giturl"]:
+                log += format_map[field].format(project[field])
+                if re.search("n/a",log):
+                    log=re.sub("n/a","[github link not found] https://platform.efabless.com/projects/{0}".format(project["id"]),log)
+                log += " "
+            logging.info(log)
+                            
+
 def get_pins_in_lef(projects):
     from get_pins import get_pins
     max_pins = 0
@@ -205,7 +218,7 @@ if __name__ == '__main__':
     parser.add_argument('--update-cache', help='fetch the project data', action='store_const', const=True)
     parser.add_argument('--limit-update', help='just fetch the given number of projects', type=int, default=0)
     parser.add_argument('--debug', help="debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
-
+    parser.add_argument('--ip',help="get the list of all projects that has relation with the IP", type=str)
     args = parser.parse_args()
 
     # change directory to the script's path
@@ -231,6 +244,7 @@ if __name__ == '__main__':
         logging.error("project cache %s not found, use --update-cache to build it" % projects_db)
 
     # sort the projects by ID
+
     projects.sort(key=lambda x: int(x['id']))
 
     # handle ID selection by stdin
@@ -260,6 +274,9 @@ if __name__ == '__main__':
 
     elif args.get_pins:
         get_pins_in_lef(projects)
+    
+    elif args.ip:
+        list_by_ip(projects,args.ip)
 
     elif args.update_cache:
         from bs4 import BeautifulSoup
