@@ -43,6 +43,10 @@ How many reram projects were selected to be manufactured?
 
     ./efabless_tool.py --list --field summary,selected | grep -i reram | grep yes
 
+Use the built in search:
+
+    ./efabless_tool.py --ip op-amp
+    
 ## Get Pin
 
 For each project:
