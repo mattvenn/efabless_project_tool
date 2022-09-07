@@ -156,6 +156,9 @@ def parse_project_page():
                 if key not in project:
                     project[key] = 'n/a'
 
+            # remove newlines from summary
+            project['summary'] = project['summary'].replace('\n', ' ')
+
             projects.append(project)
 
     logging.info("dumping project info to local cache %s" % projects_db)
@@ -211,7 +214,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Efabless project tool")
 
     parser.add_argument('--list', help="list basic project info", action='store_const', const=True)
-    parser.add_argument('--fields', help="comma separated list of fields to show. To see all available fields, use the --show option", default='mpw,owner,tapeout,selected')
+    parser.add_argument('--fields', help="comma separated list of fields to show. To see all available fields, use the --show option", default='mpw,owner,summary,tapeout,selected')
     parser.add_argument('--show', help="show all data for given projects", action='store_const', const=True)
     parser.add_argument('--id', help="select a project by id", type=int)
     parser.add_argument('--get-pins', help="dump number of pins found in user project wrapper lef file", action='store_const', const=True)
