@@ -196,6 +196,12 @@ def list_by_ip(projects, ip):
                 log += " "
             logging.info(log)
 
+def get_file(projects, path):
+    from get_pins import fetch_file_from_git
+    for project in projects:
+        fetched = fetch_file_from_git(project, path)
+        logging.info(project['giturl'])
+        print(fetched.decode('utf-8'))
 
 def get_pins_in_lef(projects):
     from get_pins import get_pins
@@ -218,6 +224,7 @@ if __name__ == '__main__':
     parser.add_argument('--show', help="show all data for given projects", action='store_const', const=True)
     parser.add_argument('--id', help="select a project by id", type=int)
     parser.add_argument('--get-pins', help="dump number of pins found in user project wrapper lef file", action='store_const', const=True)
+    parser.add_argument('--get-file', help="get the specified file from the git repo")
     parser.add_argument('--update-cache', help='fetch the project data', action='store_const', const=True)
     parser.add_argument('--limit-update', help='just fetch the given number of projects', type=int, default=0)
     parser.add_argument('--debug', help="debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
@@ -277,6 +284,9 @@ if __name__ == '__main__':
 
     elif args.get_pins:
         get_pins_in_lef(projects)
+
+    elif args.get_file:
+        get_file(projects, args.get_file)
 
     elif args.ip:
         list_by_ip(projects, args.ip)

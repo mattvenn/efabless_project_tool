@@ -46,6 +46,10 @@ How many reram projects were selected to be manufactured?
 Use the built in search:
 
     ./efabless_tool.py --ip op-amp
+
+Print the macro.cfg for all projects on MPW7 that have passed tapeout (requires github token, see below)
+
+    ./efabless_tool.py  --list | egrep MPW-7.*Succeeded | ./efabless_tool.py --get-file openlane/user_project_wrapper/macro.cfg:q
     
 ## Get Pin
 
@@ -76,7 +80,7 @@ You will need to install the driver that works with the browser you have install
 
 ## GitHub token
 
-If you want to use the GitHub functionality (currently only used for the get-pin option), you'll also need a git_token and git_username added to tokens.py. Get yours from https://github.com/settings/tokens/new
+If you want to use the GitHub functionality (currently only used for the get-pin option), you'll also need a git_token and git_username added to tokens.py. Get yours from https://github.com/settings/tokens/new . You don't need to tick any boxes in the form, the default is fine.
 
     git_token = "token"
     git_username = "username"
