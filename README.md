@@ -49,7 +49,7 @@ Use the built in search:
 
 Print the macro.cfg for all projects on MPW7 that have passed tapeout (requires github token, see below)
 
-    ./efabless_tool.py  --list | egrep MPW-7.*Succeeded | ./efabless_tool.py --get-file openlane/user_project_wrapper/macro.cfg:q
+    ./efabless_tool.py  --list | egrep MPW-7.*Succeeded | ./efabless_tool.py --get-file openlane/user_project_wrapper/macro.cfg
     
 ## Get Pin
 
