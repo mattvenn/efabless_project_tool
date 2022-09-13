@@ -1,3 +1,2 @@
 aiohttp[speedups]
 BeautifulSoup4
-selenium 

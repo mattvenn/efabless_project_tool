@@ -5,9 +5,8 @@ import os, shutil, pickle, time, sys, logging, argparse, re
 from signal import signal, SIGPIPE, SIG_DFL
 signal(SIGPIPE, SIG_DFL)
 
+mpw_ids = [1, 2, 5, 6, 9, 10, 11]
 projects_db = 'projects.pkl'
-index_url = 'https://platform.efabless.com/projects/public'
-project_base_url = 'https://platform.efabless.com'
 cached_project_dir = 'cached_pages'
 
 # some projects don't have all keys, so set them to none
@@ -55,37 +54,18 @@ async def get_async(url, session, results):
         results[i] = obj
 
 
-# uses selenium webdriver with Chrome because index is dynamic
 def get_urls_from_index():
-    logging.info("making request with selenium controlled chrome for url %s" % index_url)
-
-    driver = webdriver.Chrome()
-    driver.get(index_url)
-
-    for i in range(10):
-        page_content = driver.page_source
-        urls = parse_index(page_content)
-        if len(urls) != 0:
-            break
-        logging.info("waiting for page to load")
-        time.sleep(1.0)
-    else:
-        logging.error("couldn't fetch URLs")
-        exit(1)
-
-    return urls
-
-
-def parse_index(page_content):
-    logging.info("parsing index for project URLs")
-    soup = BeautifulSoup(page_content, 'html.parser')
-    divs = soup.find_all("div", {"class": "col-12 col-md-6 col-xl-4 col-xxl-3 mb-3"})
     urls = []
-    for div in divs:
-        url = div.find("a").get('href')
-        urls.append(project_base_url + url)
-
-    logging.info("found %d urls" % len(urls))
+    # shuttle encoding is found from inspecting the link of the 'showcase' button on https://platform.efabless.com/
+    for shuttle, mpw in enumerate(mpw_ids):
+        data = urllib.parse.urlencode({'filters': f'shuttle_{mpw}'}).encode('utf-8')
+        request = urllib.request.Request('https://platform.efabless.com/projects/projects_search_results', data)
+        with urllib.request.urlopen(request) as f:
+            shuttle_soup = BeautifulSoup(f.read(), 'html.parser')
+            paths = [p['href'] for p in shuttle_soup.select('a[href^="/projects/"]')]
+            paths = ['https://platform.efabless.com' + x for x in paths]
+            logging.info("fetched {} urls for shuttle {}".format(len(paths), shuttle))
+        urls += paths
     return urls
 
 
@@ -196,12 +176,14 @@ def list_by_ip(projects, ip):
                 log += " "
             logging.info(log)
 
+
 def get_file(projects, path):
     from get_pins import fetch_file_from_git
     for project in projects:
         fetched = fetch_file_from_git(project, path)
         logging.info(project['giturl'])
         print(fetched.decode('utf-8'))
+
 
 def get_pins_in_lef(projects):
     from get_pins import get_pins
@@ -293,9 +275,9 @@ if __name__ == '__main__':
 
     elif args.update_cache:
         from bs4 import BeautifulSoup
-        from selenium import webdriver
         import asyncio
         import aiohttp
+        import urllib
         urls = get_urls_from_index()
         asyncio.run(fetch_project_urls(urls, args.limit_update))
         projects = parse_project_page()

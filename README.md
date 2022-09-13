@@ -2,7 +2,7 @@
 
 Efabless don't yet have an API, so I've written this as a quick hack to get bulk project data from the Google sponsored MPW projects.
 
-Also, while there are around 600 public projects (As of July 2022), only 240ish have been selected to be made. The selected status isn't
+Also, while there are around 700 public projects (As of September 2022), only 240ish have been selected to be made. The selected status isn't
 a secret but it's also not easily available, so I have put a list of (most of) the ids in the [selected](selected) file, which is merged
 into the data from the website. I'll manually update this after every shuttle selection.
 
@@ -70,13 +70,6 @@ will need to install the dependencies.
 ## Install Python dependencies
 
     pip3 install -r requirements.txt
-
-## Install Selenium Driver
-
-Efabless index page is dynamically generated and can't be fetched with a simple get.
-I tried pyppeteer and playwright, Scraping Ant and finally Selenium.
-
-You will need to install the driver that works with the browser you have installed, see these instructions: https://selenium-python.readthedocs.io/installation.html.
 
 ## GitHub token
 
