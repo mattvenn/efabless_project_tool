@@ -62,14 +62,14 @@ For each project:
 
 Only works if user_project_wrapper.def and all macro.lefs are commited to the repo.
 
-# To set up
+# To refresh the cache
 
-The tool comes with a database of projects, that will go out of date. If you want to refresh the cache, you
-will need to install the dependencies.
+The [GitHub Action](.github/workflows/efabless_tool.yaml) runs every night to rebuild the cache. So you just need to do a `git pull` in your cloned repo to update.
 
-## Install Python dependencies
+## Manually refresh the cache
 
     pip3 install -r requirements.txt
+    ./efabless_tool.py --update-cache # takes a few minutes
 
 ## GitHub token
 
