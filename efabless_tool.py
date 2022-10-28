@@ -124,9 +124,10 @@ def parse_project_page():
                 if key in key_map:
                     project[key_map[key]] = value
 
-            mpw_header = soup.find("h1", {"class": "card-label h1 font-weight-bold pt-3 text-center"})
-            if mpw_header is not None:
-                project['mpw'] = mpw_header.text.strip()
+
+            mpw_header = soup.find_all("span",{"class": "text-dark-50 font-weight-bold"})
+            if len(mpw_header) > 0:
+                project['mpw'] = mpw_header[1].text.strip()
 
             if project['id'] in selected:
                 project['selected'] = 'yes'
@@ -278,8 +279,8 @@ if __name__ == '__main__':
         import asyncio
         import aiohttp
         import urllib
-        urls = get_urls_from_index()
-        asyncio.run(fetch_project_urls(urls, args.limit_update))
+        #urls = get_urls_from_index()
+        #asyncio.run(fetch_project_urls(urls, args.limit_update))
         projects = parse_project_page()
 
     else:
