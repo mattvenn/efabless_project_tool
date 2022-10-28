@@ -279,8 +279,8 @@ if __name__ == '__main__':
         import asyncio
         import aiohttp
         import urllib
-        #urls = get_urls_from_index()
-        #asyncio.run(fetch_project_urls(urls, args.limit_update))
+        urls = get_urls_from_index()
+        asyncio.run(fetch_project_urls(urls, args.limit_update))
         projects = parse_project_page()
 
     else:
