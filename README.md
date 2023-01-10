@@ -1,3 +1,8 @@
+# Project is out of date and doesn't work anymore.
+
+The website changes too much for me to keep the scraping up to date.
+
+
 # Efabless Project Tool
 
 Efabless don't yet have an API, so I've written this as a quick hack to get bulk project data from the Google sponsored MPW projects.
